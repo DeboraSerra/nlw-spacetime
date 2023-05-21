@@ -1,4 +1,9 @@
+import { makeRedirectUri, useAuthRequest } from 'expo-auth-session'
+import { useRouter } from 'expo-router'
+import * as SecureStore from 'expo-secure-store'
 import { StatusBar } from 'expo-status-bar'
+import { styled } from 'nativewind'
+import { useEffect } from 'react'
 import { ImageBackground, Text, TouchableOpacity, View } from 'react-native'
 
 import { BaiJamjuree_700Bold } from '@expo-google-fonts/bai-jamjuree'
@@ -8,19 +13,60 @@ import {
   useFonts,
 } from '@expo-google-fonts/roboto'
 
-import { styled } from 'nativewind'
-import Logo from './src/assets/logo.svg'
-import blurBg from './src/assets/luz.png'
-import Stripes from './src/assets/stripes.svg'
+import Logo from '../src/assets/logo.svg'
+import blurBg from '../src/assets/luz.png'
+import Stripes from '../src/assets/stripes.svg'
+import { api } from '../src/lib/api'
 
 const StyledStripes = styled(Stripes)
 
+const saveInfo = async (key: string, value: string) => {
+  await SecureStore.setItemAsync(key, value)
+}
+
+const discovery = {
+  authorizationEndpoint: 'https://github.com/login/oauth/authorize',
+  tokenEndpoint: 'https://github.com/login/oauth/access_token',
+  revocationEndpoint:
+    'https://github.com/settings/connections/applications/d6e76ea215e073538949',
+}
+
 export default function App() {
+  const router = useRouter()
   const [hasLoadedFronts] = useFonts({
     Roboto_400Regular,
     Roboto_700Bold,
     BaiJamjuree_700Bold,
   })
+
+  const [, res, signInWithGithub] = useAuthRequest(
+    {
+      clientId: 'd6e76ea215e073538949',
+      scopes: ['identity'],
+      redirectUri: makeRedirectUri({
+        scheme: 'nlwspacetime',
+      }),
+    },
+    discovery,
+  )
+
+  const getToken = async (code: string) => {
+    try {
+      const response = await api.post('/register', { code })
+      const { token } = response.data
+      await saveInfo('token', token)
+      router.push('/memories')
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  useEffect(() => {
+    if (res && res.type === 'success') {
+      const { code } = res.params
+      getToken(code)
+    }
+  }, [res])
 
   if (!hasLoadedFronts) return null
 
@@ -45,6 +91,7 @@ export default function App() {
         <TouchableOpacity
           activeOpacity={0.7}
           className="rounded-3xl bg-green-500 px-5 py-3"
+          onPress={() => signInWithGithub()}
         >
           <Text className="font-alt text-sm text-black">
             COMEÇAR A CADASTRAR
