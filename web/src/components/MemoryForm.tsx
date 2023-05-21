@@ -5,7 +5,7 @@ import { Camera } from 'lucide-react'
 import { FormEvent } from 'react'
 import MediaPicker from './MediaPicker'
 import Cookie from 'js-cookie'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 const MemoryForm = () => {
   const router = useRouter()
