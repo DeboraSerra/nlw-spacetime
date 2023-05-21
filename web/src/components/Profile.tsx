@@ -15,7 +15,7 @@ const Profile = () => {
       <p className="max-w-[280px] text-sm leading-snug">
         {name}
         <a
-          href=""
+          href="/api/auth/logout"
           className="block text-red-400 underline transition-colors hover:text-red-300"
         >
           Quero sair
