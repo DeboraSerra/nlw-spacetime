@@ -16,14 +16,14 @@ export async function uploadRoutes(app: FastifyInstance) {
     })
 
     if (!data) {
-      return res.status(400).send()
+      return res.status(400).send('too big')
     }
 
     const mimetypeRegex = /^(image|video)\/[a-zA-Z]+/
     const isValidFormat = mimetypeRegex.test(data.mimetype)
 
-    if (isValidFormat) {
-      return res.status(400).send()
+    if (!isValidFormat) {
+      return res.status(400).send('wrong format')
     }
 
     const fileId = randomUUID()
