@@ -1,10 +1,8 @@
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session'
 import { useRouter } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
-import { StatusBar } from 'expo-status-bar'
-import { styled } from 'nativewind'
 import { useEffect } from 'react'
-import { ImageBackground, Text, TouchableOpacity, View } from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native'
 
 import { BaiJamjuree_700Bold } from '@expo-google-fonts/bai-jamjuree'
 import {
@@ -14,11 +12,7 @@ import {
 } from '@expo-google-fonts/roboto'
 
 import Logo from '../src/assets/logo.svg'
-import blurBg from '../src/assets/luz.png'
-import Stripes from '../src/assets/stripes.svg'
 import { api } from '../src/lib/api'
-
-const StyledStripes = styled(Stripes)
 
 const saveInfo = async (key: string, value: string) => {
   await SecureStore.setItemAsync(key, value)
@@ -71,12 +65,7 @@ export default function App() {
   if (!hasLoadedFronts) return null
 
   return (
-    <ImageBackground
-      source={blurBg}
-      imageStyle={{ position: 'absolute', left: '-100%' }}
-      className="relative flex-1 items-center bg-gray-900 px-4 py-8"
-    >
-      <StyledStripes className="absolute left-1" />
+    <View className="flex-1 items-center px-4 py-8">
       <View className="flex-1 items-center justify-center gap-6">
         <Logo />
         <View className="space-y-2">
@@ -102,7 +91,6 @@ export default function App() {
         Feito com 💜 no NLW da{' '}
         <Text className="text-gray-200 underline">Rocketseat</Text>
       </Text>
-      <StatusBar style="light" translucent />
-    </ImageBackground>
+    </View>
   )
 }
