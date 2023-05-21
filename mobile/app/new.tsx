@@ -1,5 +1,6 @@
 import Icon from '@expo/vector-icons/Feather'
 import {
+  Image,
   ScrollView,
   Switch,
   Text,
@@ -8,14 +9,70 @@ import {
   View,
 } from 'react-native'
 
-import { Link } from 'expo-router'
+import * as ImagePicker from 'expo-image-picker'
+import * as SecureStore from 'expo-secure-store'
+
+import { Link, useRouter } from 'expo-router'
 import { useState } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Logo from '../src/assets/logo.svg'
+import { api } from '../src/lib/api'
 
 export default function NewMemories() {
+  const router = useRouter()
+
   const { bottom, top } = useSafeAreaInsets()
   const [isPublic, setIsPublic] = useState(false)
+  const [content, setContent] = useState('')
+  const [preview, setPreview] = useState<string | null>(null)
+
+  const handleSubmit = async () => {
+    const token = await SecureStore.getItemAsync('token')
+    let coverUrl = ''
+    if (preview) {
+      const uploadFormData = new FormData()
+      uploadFormData.append('file', {
+        name: 'image.jpg',
+        uri: preview,
+        type: 'image/jpeg',
+      } as any)
+
+      const { data } = await api.post('/upload', uploadFormData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      coverUrl = data.fileUrl
+    }
+    await api.post(
+      '/memories',
+      {
+        coverUrl,
+        content,
+        isPublic,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    )
+    router.push('/memories')
+  }
+
+  const openImgPicker = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      })
+      if (!result.canceled) {
+        setPreview(result.assets[0].uri)
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   return (
     <ScrollView
@@ -51,13 +108,22 @@ export default function NewMemories() {
         <TouchableOpacity
           activeOpacity={0.7}
           className="h-32 justify-center rounded-lg border border-dashed border-gray-500 bg-black/20"
+          onPress={openImgPicker}
         >
-          <View className="flex-row items-center justify-center gap-2">
-            <Icon name="image" color="#fff" />
-            <Text className="font-body text-sm text-gray-200">
-              Adicionar foto ou video de capa
-            </Text>
-          </View>
+          {preview ? (
+            <Image
+              source={{ uri: preview }}
+              alt=""
+              className="h-full w-full rounded-lg object-cover"
+            />
+          ) : (
+            <View className="flex-row items-center justify-center gap-2">
+              <Icon name="image" color="#fff" />
+              <Text className="font-body text-sm text-gray-200">
+                Adicionar foto ou video de capa
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
 
         <TextInput
@@ -65,10 +131,14 @@ export default function NewMemories() {
           className="p-0 font-body text-lg text-gray-50"
           placeholder="Fique livre para adicionar fotos, vídeos e relatos sobre essa experiência que você quer lembrar para sempre."
           placeholderTextColor="#56565a"
+          value={content}
+          onChangeText={setContent}
+          textAlignVertical="top"
         />
       </View>
       <TouchableOpacity
         activeOpacity={0.7}
+        onPress={handleSubmit}
         className="items-center self-end rounded-3xl bg-green-500 px-5 py-3"
       >
         <Text className="font-alt text-sm text-black">SALVAR</Text>
