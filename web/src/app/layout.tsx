@@ -1,16 +1,17 @@
+import Blur from '@/components/Blur'
+import Copyright from '@/components/Copyright'
+import Hero from '@/components/Hero'
+import Profile from '@/components/Profile'
+import SignIn from '@/components/SignIn'
+import Stripes from '@/components/Stripes'
+import { cookies } from 'next/dist/client/components/headers'
 import {
   Bai_Jamjuree as BaiJamJuree,
   Roboto_Flex as Roboto,
 } from 'next/font/google'
 import { ReactNode } from 'react'
 import './globals.css'
-import Blur from '@/components/Blur'
-import Stripes from '@/components/Stripes'
-import SignIn from '@/components/SignIn'
-import Hero from '@/components/Hero'
-import Copyright from '@/components/Copyright'
-import { cookies } from 'next/dist/client/components/headers'
-import Profile from '@/components/Profile'
+import 'react-day-picker/dist/style.css'
 
 const roboto = Roboto({ subsets: ['latin'], variable: '--font-roboto' })
 const baiJamJuree = BaiJamJuree({
@@ -40,7 +41,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <Hero />
             <Copyright />
           </div>
-          <div className="flex flex-col bg-[url(../assets/bg-stars.svg)] bg-cover p-16">
+          <div className="flex max-h-screen flex-col overflow-auto bg-[url(../assets/bg-stars.svg)] bg-cover">
             {children}
           </div>
         </main>

@@ -1,14 +1,22 @@
 'use client'
 
 import { api } from '@/lib/api'
-import { Camera } from 'lucide-react'
-import { FormEvent } from 'react'
-import MediaPicker from './MediaPicker'
+import { ptBR } from 'date-fns/locale'
+import dayjs from 'dayjs'
 import Cookie from 'js-cookie'
+import { Calendar, Camera } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { FormEvent, useState } from 'react'
+import { DayPicker } from 'react-day-picker'
+import MediaPicker from './MediaPicker'
+import ptBr from 'dayjs/locale/pt-br'
+
+dayjs.locale(ptBr)
 
 const MemoryForm = () => {
   const router = useRouter()
+  const [date, setDate] = useState(new Date())
+  const [showPicker, setShowPicker] = useState(false)
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -29,6 +37,7 @@ const MemoryForm = () => {
         coverUrl,
         content: formData.get('content'),
         isPublic: formData.get('isPublic'),
+        createdAt: date,
       },
       {
         headers: {
@@ -38,9 +47,31 @@ const MemoryForm = () => {
     )
     router.push('/')
   }
+
   return (
     <form className="flex flex-1 flex-col gap-2" onSubmit={handleSubmit}>
       <div className="flex items-center gap-4">
+        <time className="-ml-8 flex items-center gap-2 text-sm text-gray-100 before:h-px before:w-5 before:bg-gray-50">
+          {dayjs(date).format('D[ de ]MMMM[, ]YYYY')}
+          <Calendar
+            onClick={() => setShowPicker(!showPicker)}
+            className="cursor-pointer"
+          />
+          {showPicker && (
+            <div className="absolute top-[128px] rounded-lg bg-gray-950">
+              <DayPicker
+                selected={date}
+                onDayClick={(val: any) => {
+                  setDate(val)
+                  setShowPicker(false)
+                }}
+                locale={ptBR}
+                defaultMonth={new Date()}
+                initialFocus
+              />
+            </div>
+          )}
+        </time>
         <label
           htmlFor="media"
           className="flex cursor-pointer items-center gap-1.5 text-sm text-gray-200 hover:text-gray-100"
