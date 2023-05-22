@@ -18,13 +18,15 @@ export async function memoriesRoutes(app: FastifyInstance) {
         coverUrl: true,
         content: true,
         id: true,
+        createdAt: true,
       },
     })
-    return memories.map(({ id, content, coverUrl }) => {
+    return memories.map(({ id, content, coverUrl, createdAt }) => {
       return {
         id,
         coverUrl,
         excerpt: content.substring(0, 115).concat('...'),
+        createdAt,
       }
     })
   })
@@ -53,14 +55,18 @@ export async function memoriesRoutes(app: FastifyInstance) {
       coverUrl: z.string(),
       content: z.string(),
       isPublic: z.coerce.boolean().default(false),
+      createdAt: z.string().datetime().default(new Date().toLocaleDateString()),
     })
-    const { coverUrl, content, isPublic } = bodySchema.parse(req.body)
+    const { coverUrl, content, isPublic, createdAt } = bodySchema.parse(
+      req.body,
+    )
     const memory = await prisma.memory.create({
       data: {
         userId: user.sub,
         coverUrl,
         content,
         isPublic,
+        createdAt,
       },
     })
     return memory
