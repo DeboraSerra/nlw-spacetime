@@ -26,12 +26,16 @@ export default function Memories() {
 
   const getMemories = async () => {
     const token = await SecureStore.getItemAsync('token')
-    const { data } = await api.get('/memories', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    setMemories(data)
+    try {
+      const { data } = await api.get('/memories', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setMemories(data)
+    } catch (e) {
+      console.log(`memories: ${e}`)
+    }
   }
 
   useEffect(() => {
